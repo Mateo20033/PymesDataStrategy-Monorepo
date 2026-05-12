@@ -14,8 +14,8 @@ import MetricCard from './MetricCard';
 import AnalisisAvanzadoModal from './AnalisisAvanzadoModal';
 import './dashboard-pymes.css';
 
-// Mock pdf export for now, or implement it if html2canvas and jspdf are installed
-const exportarPDF = async () => alert("Exportar PDF no implementado en esta versión S2S");
+import AsistenteIAModal from './AsistenteIAModal';
+import { exportarPDF } from './pdfExport';
 
 const getDatasets = () => fetch('/api/dashboard/upload/datasets').then(r => r.json());
 const getDashboardStats = (ids: any) => {
@@ -485,6 +485,7 @@ export default function Dashboard({ defaultDatasetId }: { defaultDatasetId?: str
   const [chartAnalysis, setChartAnalysis] = useState({});
   const [exportandoPDF, setExportandoPDF] = useState(false);
   const [showAnalisis, setShowAnalisis]   = useState(false);
+  const [showAsistente, setShowAsistente] = useState(false);
 
   useEffect(() => {
     getDatasets().then(res => {
@@ -572,17 +573,19 @@ export default function Dashboard({ defaultDatasetId }: { defaultDatasetId?: str
     setExportandoPDF(true);
     try {
       const s = stats ?? STATS_VACIO;
+      const datasetActivo = datasets.find((d: any) => d.id === selected[0]);
       await exportarPDF({
-        stats:         { ...s, nombre_dataset: datasets.find(d => d.id === selected[0])?.nombre ?? 'Todos los datasets' },
-        kpis:          s.kpis ?? [],
-        graficos:      s.graficos ?? [],
-        insights:      s.insights ?? [],
+        stats:        { ...s, nombre_dataset: datasetActivo?.nombre ?? 'Todos los datasets' },
+        kpis:         s.kpis ?? [],
+        graficos:     s.graficos ?? [],
+        insights:     s.insights ?? [],
         user,
-        tipoLabel:     TIPO_LABELS[s.tipo_detectado] ?? 'General',
+        tipoLabel:    TIPO_LABELS[s.tipo_detectado] ?? 'General',
         chartAnalysis,
       });
     } catch (err) {
-      alert('Error al generar el PDF. Intenta de nuevo.');
+      console.error('[PDF Export]', err);
+      alert('Error al generar el PDF. Revisa la consola para más detalles.');
     } finally {
       setExportandoPDF(false);
     }
@@ -654,6 +657,14 @@ export default function Dashboard({ defaultDatasetId }: { defaultDatasetId?: str
         <AnalisisAvanzadoModal
           datasetId={selected[0]}
           onClose={() => setShowAnalisis(false)}
+        />
+      )}
+
+      {showAsistente && (
+        <AsistenteIAModal
+          datasets={datasets}
+          defaultDatasetId={selected[0] ?? null}
+          onClose={() => setShowAsistente(false)}
         />
       )}
 
@@ -956,15 +967,18 @@ export default function Dashboard({ defaultDatasetId }: { defaultDatasetId?: str
         </div>
         <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
           {sinDatos && (
-            <Link href="#" style={{ padding: '10px 20px', borderRadius: '9px', background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: '13px', fontWeight: 600, border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Link href="/dashboard" style={{ padding: '10px 20px', borderRadius: '9px', background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: '13px', fontWeight: 600, border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
               Cargar CSV
             </Link>
           )}
-          <Link href="#" style={{ padding: '10px 22px', borderRadius: '9px', background: '#ff6600', color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(255,102,0,0.45)' }}>
+          <button
+            onClick={() => setShowAsistente(true)}
+            style={{ padding: '10px 22px', borderRadius: '9px', background: '#ff6600', color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(255,102,0,0.45)', cursor: 'pointer' }}
+          >
             <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
             Abrir Asistente IA
-          </Link>
+          </button>
         </div>
       </div>
     </div>

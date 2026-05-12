@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-echo "Running Prisma migrations..."
-cd /app && pnpm exec prisma migrate deploy --schema=prisma/schema.prisma
+echo "Pushing Prisma schema to database..."
+cd /app && pnpm exec prisma db push --schema=prisma/schema.prisma --accept-data-loss
 
 echo "Starting API server..."
 exec "$@"

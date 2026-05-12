@@ -48,6 +48,9 @@ _DATE_KEYS = ["fecha", "date", "periodo", "mes", "month"]
 def _a_df(filas: list[dict], columnas: list[str]) -> pd.DataFrame:
     df = pd.DataFrame(filas, columns=columnas) if filas else pd.DataFrame(columns=columnas)
     for col in columnas:
+        # Preserve date columns as strings so _monthly() can parse them correctly
+        if any(k in col.lower() for k in _DATE_KEYS):
+            continue
         try:
             df[col] = pd.to_numeric(df[col].astype(str).str.replace(",", "."), errors="coerce")
         except Exception:
