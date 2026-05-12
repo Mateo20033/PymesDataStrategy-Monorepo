@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   PymesDataStrategy — Design System
+   Identidad visual soft SaaS B2B
+   ========================================================================== */
+
+@theme {
+  /* Typography */
+  --font-sans: var(--font-barlow), "Barlow", system-ui, sans-serif;
+  --font-display: var(--font-barlow-condensed), "Barlow Condensed", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", monospace;
+
+  /* Primary — naranja */
+  --color-primary:       #ff6600;
+  --color-primary-hover: #cc5200;
+  --color-primary-light: #fff0e6;
+
+  /* Backgrounds */
+  --color-background:    #f7f5f2;
+  --color-surface:       #ffffff;
+  --color-surface-elevated: #ffffff;
+
+  /* Sidebar */
+  --color-sidebar-bg:    #1a1a1a;
+  --color-sidebar-text:  #94a3b8;
+  --color-sidebar-hover: #2d2d2d;
+
+  /* Text */
+  --color-text:          #1e293b;
+  --color-text-muted:    #64748b;
+  --color-text-inverted: #ffffff;
+
+  /* Border */
+  --color-border:        #e2e8f0;
+  --color-border-muted:  #f1f5f9;
+
+  /* Semantic */
+  --color-success:       #059669;
+  --color-success-light: #d1fae5;
+  --color-warning:       #d97706;
+  --color-warning-light: #fef3c7;
+  --color-error:         #dc2626;
+  --color-error-light:   #fee2e2;
+}
+
+/* Spacing & Radius tokens */
+:root {
+  --spacing-xs:  0.25rem;
+  --spacing-sm:  0.5rem;
+  --spacing-md:  1rem;
+  --spacing-lg:  1.5rem;
+  --spacing-xl:  2rem;
+  --spacing-2xl: 3rem;
+
+  --radius-none: 0;
+  --radius-sm:   0.25rem;
+  --radius-md:   0.5rem;
+  --radius-lg:   0.75rem;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 10px 30px rgba(0,0,0,.06);
+  --radius: 10px;
+  --sidebar-w: 240px;
+}
+
+/* ==========================================================================
+   Motion — Emil Kowalski easing curves
+   ========================================================================== */
+:root {
+  --ease-out-expo: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-expo: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.45s var(--ease-out-expo) both;
+}
+
+.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-200 { animation-delay: 200ms; }
+.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-400 { animation-delay: 400ms; }
+.animate-delay-500 { animation-delay: 500ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  button { cursor: pointer; font-family: inherit; }
+  input, select, textarea { font-family: inherit; }
+  a { text-decoration: none; color: inherit; }
+}
+
+/* ==========================================================================
+   Soft Shadow Utilities
+   ========================================================================== */
+.shadow-soft {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-soft-md {
+  box-shadow: var(--shadow-md);
+}
+
+.card-base {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}

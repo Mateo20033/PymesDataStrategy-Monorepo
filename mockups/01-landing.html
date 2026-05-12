@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PymesDataStrategy — Datos limpios en minutos, decisiones en segundos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design-system.css" />
+<style>
+  /* Landing-specific */
+  .hero {
+    position: relative;
+    padding: 96px 0 72px;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 60% 60% at 20% 10%, rgba(79,70,229,.12), transparent 60%),
+      radial-gradient(ellipse 50% 50% at 90% 30%, rgba(6,182,212,.10), transparent 60%),
+      linear-gradient(180deg, #FBFBFE 0%, #F8FAFC 100%);
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--surface-0);
+    border: 1px solid var(--border-subtle);
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-xs);
+    margin-bottom: 24px;
+  }
+  .hero h1 { max-width: 720px; margin: 0 0 20px; }
+  .hero h1 span.highlight {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, #06B6D4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-lead {
+    max-width: 580px;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin-bottom: 36px;
+  }
+  .hero-cta { display: flex; gap: 12px; align-items: center; }
+  .hero-proof {
+    display: flex; align-items: center; gap: 16px;
+    margin-top: 40px; padding-top: 28px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .avatars { display: flex; }
+  .avatars > span {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2px solid white; margin-left: -8px;
+    background: linear-gradient(135deg, #c7d2fe, #a5f3fc);
+    display: grid; place-items: center;
+    font-weight: 600; font-size: 12px; color: #4338ca;
+  }
+  .avatars > span:first-child { margin-left: 0; }
+
+  /* Hero product visual */
+  .hero-visual {
+    position: relative;
+    margin-top: 72px;
+    border-radius: 18px;
+    background: var(--surface-0);
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 40px 80px -20px rgba(15,23,42,.15), 0 10px 20px rgba(15,23,42,.05);
+    overflow: hidden;
+  }
+  .browser-chrome {
+    display: flex; align-items: center; gap: 6px;
+    padding: 12px 16px;
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .browser-chrome i {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .browser-chrome i:nth-child(1) { background: #EF4444; }
+  .browser-chrome i:nth-child(2) { background: #F59E0B; }
+  .browser-chrome i:nth-child(3) { background: #10B981; }
+  .browser-chrome .url {
+    margin-left: 14px;
+    padding: 4px 12px;
+    background: var(--surface-0);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-tertiary);
+    flex: 1;
+    max-width: 340px;
+  }
+  .hero-preview {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 420px;
+    background:
+      radial-gradient(ellipse at top right, rgba(79,70,229,.04), transparent 60%),
+      white;
+  }
+  .mini-sidebar {
+    background: #1A1A1A;
+    padding: 20px 14px;
+    color: #94A3B8;
+    font-size: 12px;
+  }
+  .mini-sidebar .logo { color: white; margin-bottom: 24px; }
+  .mini-sidebar .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; margin-bottom: 2px;
+    border-radius: 6px;
+  }
+  .mini-sidebar .nav-item.active { background: rgba(255,255,255,.08); color: white; }
+  .mini-sidebar .nav-item .ico {
+    width: 14px; height: 14px; border-radius: 3px; background: #475569;
+  }
+  .mini-sidebar .nav-item.active .ico { background: var(--brand-primary); }
+  .mini-main { padding: 24px; }
+  .mini-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+  .mini-metric {
+    background: white;
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .mini-metric .k { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .05em; }
+  .mini-metric .v { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .mini-metric .d { font-size: 11px; margin-top: 2px; }
+  .mini-chart {
+    background: white;
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 16px;
+    height: 240px;
+    position: relative;
+  }
+  .mini-chart svg { width: 100%; height: 100%; }
+
+  /* Floating badges on hero */
+  .float-card {
+    position: absolute;
+    background: white;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: var(--shadow-lg);
+    font-size: 13px;
+    animation: float 4s ease-in-out infinite;
+  }
+  .float-card.a { top: 30%; left: -28px; }
+  .float-card.b { bottom: 20%; right: -24px; animation-delay: 1.2s; }
+
+  /* Sections */
+  .section { padding: 96px 0; }
+  .section-muted { background: var(--surface-1); }
+  .section-eyebrow {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--brand-primary);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: 14px;
+  }
+  .section-title { font-size: 42px; letter-spacing: -0.03em; max-width: 620px; margin-bottom: 18px; }
+  .section-lead { font-size: 18px; max-width: 580px; color: var(--text-secondary); }
+
+  /* Features */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 48px;
+  }
+  .feature {
+    padding: 28px;
+    background: white;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    transition: all .2s;
+  }
+  .feature:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: #c7d2fe; }
+  .feature-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: grid; place-items: center;
+    margin-bottom: 18px;
+    background: var(--brand-primary-soft);
+    color: var(--brand-primary);
+  }
+  .feature h4 { margin-bottom: 10px; font-size: 17px; }
+  .feature p { font-size: 14.5px; line-height: 1.55; }
+
+  /* How it works */
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 48px; position: relative; }
+  .steps::before {
+    content: ''; position: absolute;
+    top: 24px; left: 12%; right: 12%;
+    height: 2px;
+    background: linear-gradient(to right, var(--brand-primary), transparent 30%, transparent 70%, var(--brand-primary));
+    background-image: repeating-linear-gradient(to right, var(--border-default) 0 8px, transparent 8px 16px);
+    z-index: 0;
+  }
+  .step { position: relative; z-index: 1; text-align: left; }
+  .step-num {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid var(--brand-primary);
+    color: var(--brand-primary);
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 0 6px white;
+  }
+  .step h4 { margin-bottom: 6px; }
+  .step p { font-size: 14px; }
+
+  /* Testimonial */
+  .testi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 48px; }
+  .testi {
+    padding: 32px;
+    background: white;
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+  }
+  .testi blockquote {
+    margin: 0 0 20px;
+    font-size: 19px;
+    line-height: 1.45;
+    color: var(--text-primary);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .testi-author { display: flex; align-items: center; gap: 12px; }
+  .testi-author .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #c7d2fe, #a5f3fc);
+    display: grid; place-items: center; font-weight: 600; color: #4338ca;
+  }
+
+  /* Pricing */
+  .price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px; }
+  .price {
+    background: white; border: 1px solid var(--border-subtle);
+    border-radius: 18px; padding: 32px; position: relative;
+  }
+  .price.featured {
+    border-color: var(--brand-primary);
+    box-shadow: 0 20px 40px -12px rgba(79,70,229,.25);
+    transform: scale(1.03);
+  }
+  .price.featured::before {
+    content: 'Más popular';
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--brand-primary); color: white;
+    padding: 4px 12px; font-size: 12px; font-weight: 600;
+    border-radius: 9999px;
+  }
+  .price h3 { font-size: 20px; }
+  .price-amount { font-size: 42px; font-weight: 800; letter-spacing: -0.03em; margin: 16px 0 6px; }
+  .price-amount small { font-size: 14px; font-weight: 500; color: var(--text-tertiary); }
+  .price ul { list-style: none; padding: 0; margin: 24px 0; }
+  .price li {
+    display: flex; gap: 10px; font-size: 14px;
+    padding: 6px 0; color: var(--text-secondary);
+  }
+  .check {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--success-soft); color: var(--success);
+    display: grid; place-items: center; flex-shrink: 0;
+    font-size: 12px;
+  }
+
+  /* Footer */
+  footer {
+    background: #0F172A;
+    color: #94A3B8;
+    padding: 72px 0 32px;
+  }
+  footer h5 { color: white; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
+  footer a { color: #94A3B8; font-size: 14px; padding: 4px 0; display: block; }
+  footer a:hover { color: white; }
+  .footer-bottom {
+    margin-top: 48px; padding-top: 24px;
+    border-top: 1px solid #1E293B;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px;
+  }
+
+  /* NavBar */
+  nav.navbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto; padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    color: var(--text-secondary); font-size: 14px; font-weight: 500;
+  }
+  .nav-links a:hover { color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<!-- ============================ NAV ============================ -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-mark"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+      PymesDataStrategy
+    </a>
+    <div class="nav-links">
+      <a href="#producto">Producto</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#precios">Precios</a>
+      <a href="#clientes">Clientes</a>
+      <a href="#">Blog</a>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <a href="02-login.html" class="btn btn-ghost btn-sm">Iniciar sesión</a>
+      <a href="03-register.html" class="btn btn-primary btn-sm">Probar gratis</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================ HERO ============================ -->
+<section class="hero">
+  <div class="container">
+    <span class="hero-eyebrow">
+      <span class="dot" style="background: var(--success);"></span>
+      Nuevo: NL Edit con IA para corregir anomalías con lenguaje natural
+    </span>
+    <h1>
+      Datos limpios en minutos.<br>
+      <span class="highlight">Decisiones en segundos.</span>
+    </h1>
+    <p class="hero-lead">
+      PymesDataStrategy detecta anomalías en tus datos con IA, te explica el porqué y
+      aplica correcciones con tu aprobación. Sube un Excel y obtén un dataset listo
+      para reportería ejecutiva sin tocar una fórmula.
+    </p>
+    <div class="hero-cta">
+      <a href="03-register.html" class="btn btn-primary btn-lg">Empezar gratis — 14 días</a>
+      <a href="#como-funciona" class="btn btn-secondary btn-lg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+        Ver demo (2 min)
+      </a>
+    </div>
+    <div class="hero-proof">
+      <div class="avatars">
+        <span>JR</span><span>MP</span><span>LC</span><span>AB</span>
+      </div>
+      <div style="font-size:13px; color: var(--text-secondary);">
+        <strong style="color: var(--text-primary);">+240 PyMEs</strong> ya limpiaron más de 2M de filas
+      </div>
+    </div>
+
+    <!-- Product preview (browser chrome) -->
+    <div class="hero-visual" style="position: relative;">
+      <div class="browser-chrome">
+        <i></i><i></i><i></i>
+        <span class="url">app.pymesdatastrategy.com/dashboard</span>
+      </div>
+      <div class="hero-preview">
+        <aside class="mini-sidebar">
+          <div class="logo logo-inverse">
+            <span class="logo-mark"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+            <span style="font-size:13px;">PyMEs Data</span>
+          </div>
+          <div class="nav-item active"><span class="ico"></span> Dashboard</div>
+          <div class="nav-item"><span class="ico"></span> Datasets</div>
+          <div class="nav-item"><span class="ico"></span> Anomalías</div>
+          <div class="nav-item"><span class="ico"></span> Reportes</div>
+          <div class="nav-item"><span class="ico"></span> Equipo</div>
+        </aside>
+        <div class="mini-main">
+          <div style="display:flex; justify-content: space-between; margin-bottom: 16px;">
+            <div>
+              <div style="font-size: 12px; color: var(--text-tertiary);">Resumen de hoy</div>
+              <div style="font-size: 19px; font-weight: 700;">Dataset_Ventas_Q1.xlsx</div>
+            </div>
+            <span class="badge badge-success"><span class="dot" style="background: #10B981;"></span> Procesado</span>
+          </div>
+          <div class="mini-metrics">
+            <div class="mini-metric"><div class="k">Filas</div><div class="v">14,827</div><div class="d text-secondary">Total</div></div>
+            <div class="mini-metric"><div class="k">Anomalías</div><div class="v" style="color: var(--danger);">112</div><div class="d text-danger">0.76%</div></div>
+            <div class="mini-metric"><div class="k">Corregidas</div><div class="v" style="color: var(--success);">98</div><div class="d text-success">↑ 87%</div></div>
+            <div class="mini-metric"><div class="k">Calidad</div><div class="v">94.3</div><div class="d text-success">↑ +12.4</div></div>
+          </div>
+          <div class="mini-chart">
+            <svg viewBox="0 0 800 220" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="gradA" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#4F46E5" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#4F46E5" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- grid -->
+              <g stroke="#E2E8F0" stroke-dasharray="2,3">
+                <line x1="0" y1="50"  x2="800" y2="50"/>
+                <line x1="0" y1="100" x2="800" y2="100"/>
+                <line x1="0" y1="150" x2="800" y2="150"/>
+              </g>
+              <!-- area -->
+              <path d="M0,170 L80,155 L160,140 L240,130 L320,100 L400,85 L480,65 L560,55 L640,45 L720,30 L800,25 L800,220 L0,220 Z" fill="url(#gradA)"/>
+              <!-- line -->
+              <path d="M0,170 L80,155 L160,140 L240,130 L320,100 L400,85 L480,65 L560,55 L640,45 L720,30 L800,25"
+                    fill="none" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- points -->
+              <g fill="white" stroke="#4F46E5" stroke-width="2">
+                <circle cx="320" cy="100" r="4"/>
+                <circle cx="560" cy="55" r="4"/>
+                <circle cx="800" cy="25" r="4"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <!-- Floating accent cards -->
+      <div class="float-card a">
+        <div style="display:flex; gap: 10px; align-items:center;">
+          <div style="width:36px; height:36px; background: var(--danger-soft); color: var(--danger); border-radius:10px; display:grid; place-items:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600;">3 outliers en <code>precio</code></div>
+            <div class="text-secondary text-xs">Detectados por Z-score > 3</div>
+          </div>
+        </div>
+      </div>
+      <div class="float-card b">
+        <div style="display:flex; gap: 10px; align-items:center;">
+          <div style="width:36px; height:36px; background: var(--success-soft); color: var(--success); border-radius:10px; display:grid; place-items:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600;">IA sugiere rellenar con media</div>
+            <div class="text-secondary text-xs">Gemini • hace 2s</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ LOGOS ============================ -->
+<section style="padding: 48px 0; background: white; border-bottom: 1px solid var(--border-subtle);">
+  <div class="container">
+    <p style="text-align: center; font-size: 13px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 24px;">
+      Equipos de datos en PyMEs de LATAM confían en nosotros
+    </p>
+    <div style="display:flex; justify-content: space-around; align-items: center; opacity: .55; flex-wrap: wrap; gap: 24px;">
+      <span style="font-weight: 800; font-size: 20px; letter-spacing: -.02em;">◆ DistSanRafael</span>
+      <span style="font-family: var(--font-mono); font-weight: 700; font-size: 18px;">AGRO-TECH</span>
+      <span style="font-weight: 700; font-size: 22px; font-style: italic;">Logística Norte</span>
+      <span style="font-weight: 800; font-size: 20px; letter-spacing: -.03em;">▲ VertexRetail</span>
+      <span style="font-weight: 700; font-size: 18px;">Mercado<span style="color: var(--brand-primary);">Plus</span></span>
+      <span style="font-weight: 800; font-size: 20px;">CAFÉ · ORIGEN</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FEATURES ============================ -->
+<section class="section" id="producto">
+  <div class="container">
+    <span class="section-eyebrow">PRODUCTO</span>
+    <h2 class="section-title">La plataforma de datos diseñada para PyMEs, no para ingenieros</h2>
+    <p class="section-lead">
+      Sin SQL. Sin Python. Sin pipelines que romper. Sube tu archivo, deja que la IA
+      detecte lo raro y tú decides si aceptar o no cada corrección.
+    </p>
+
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        </div>
+        <h4>Detección automática con IA</h4>
+        <p>
+          5 detectores nativos: valores faltantes, outliers (Z-score), duplicados,
+          errores de formato e inconsistencias. Gemini analiza cada anomalía y sugiere
+          la acción correcta con contexto real.
+        </p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h4>NL Edit: corrige con lenguaje natural</h4>
+        <p>
+          "Reemplaza los valores vacíos de <code>ciudad</code> por Bogotá y trunca
+          <code>descripcion</code> a 120 caracteres." Nuestro parser convierte texto en
+          transformaciones auditables.
+        </p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        </div>
+        <h4>Reportes accionables, no dashboards bonitos</h4>
+        <p>
+          Al terminar el proceso obtienes un informe ejecutivo con narrativa IA:
+          qué cambió, por qué, qué KPIs mejoraron. Exportable a PDF o a tu Power BI.
+        </p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h4>HITL con auditoría completa</h4>
+        <p>
+          Human-in-the-loop por defecto. Cada decisión queda trazada: quién aprobó qué,
+          cuándo, por qué. Reversible en un click hasta 90 días atrás.
+        </p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <h4>Conectores nativos</h4>
+        <p>
+          Excel, CSV, Google Sheets, PostgreSQL, MySQL, Shopify y Siigo. Conecta,
+          programa y olvídate: refrescamos los datos y te avisamos si algo cambia.
+        </p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h4>De archivo crudo a reporte en 90 segundos</h4>
+        <p>
+          Nuestro motor Python + Polars procesa 100K filas en menos de 10 segundos.
+          El tiempo total (incluyendo IA + revisión humana) promedio: 90s.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ HOW IT WORKS ============================ -->
+<section class="section section-muted" id="como-funciona">
+  <div class="container">
+    <span class="section-eyebrow">CÓMO FUNCIONA</span>
+    <h2 class="section-title">De Excel caótico a dashboard confiable en 4 pasos</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Sube o conecta</h4>
+        <p>Arrastra tu archivo .xlsx/.csv o conecta a una base de datos. Detectamos columnas, tipos y encoding automáticamente.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>IA detecta anomalías</h4>
+        <p>Los 5 detectores corren en paralelo. Gemini genera una sugerencia específica para cada anomalía con el valor real.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Tú decides</h4>
+        <p>Revisa, edita o rechaza. Aplica reglas con lenguaje natural: "rellena con moda", "elimina si el campo <code>email</code> está vacío".</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>Exporta</h4>
+        <p>Descarga el dataset limpio, el informe ejecutivo en PDF, o conecta tu BI. Todo auditable y reversible.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TESTIMONIALS ============================ -->
+<section class="section" id="clientes">
+  <div class="container">
+    <span class="section-eyebrow">CLIENTES</span>
+    <h2 class="section-title">Lo que dicen equipos que ya reemplazaron su hoja de Excel</h2>
+
+    <div class="testi-grid">
+      <div class="testi">
+        <blockquote>
+          "Antes gastaba 6 horas al mes cuadrando ventas contra inventario a punta de
+          BUSCARV. Hoy subo el Excel, reviso 40 anomalías en 10 minutos y exporto.
+          Se lo recomendaría a cualquier PyME que viva en planillas."
+        </blockquote>
+        <div class="testi-author">
+          <div class="avatar">MR</div>
+          <div>
+            <div style="font-weight: 600;">María Rodríguez</div>
+            <div class="text-secondary text-sm">Jefa de Planeación — Distribuidora San Rafael</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi">
+        <blockquote>
+          "El NL Edit es magia. Le escribo 'normaliza fechas a ISO y descarta registros
+          sin cédula' y el sistema lo hace, deja el log y yo puedo devolverme si algo sale
+          mal. Cero estrés, cero SQL."
+        </blockquote>
+        <div class="testi-author">
+          <div class="avatar" style="background: linear-gradient(135deg, #fde68a, #fed7aa); color: #9a3412;">JA</div>
+          <div>
+            <div style="font-weight: 600;">Julián Acosta</div>
+            <div class="text-secondary text-sm">Analista BI — AgroTech Colombia</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PRICING ============================ -->
+<section class="section section-muted" id="precios">
+  <div class="container">
+    <span class="section-eyebrow">PRECIOS</span>
+    <h2 class="section-title">Empieza gratis. Escala cuando tu data crezca.</h2>
+    <p class="section-lead">Facturación mensual o anual (-20%). Sin contrato mínimo. Cancela cuando quieras.</p>
+
+    <div class="price-grid">
+      <div class="price">
+        <h3>Starter</h3>
+        <p class="text-secondary text-sm">Para probar y explorar</p>
+        <div class="price-amount">$0 <small>/ mes</small></div>
+        <ul>
+          <li><span class="check">✓</span> 1 usuario</li>
+          <li><span class="check">✓</span> 3 datasets / mes</li>
+          <li><span class="check">✓</span> Hasta 10K filas</li>
+          <li><span class="check">✓</span> Detección básica (3 detectores)</li>
+          <li><span class="check">✓</span> Export CSV</li>
+        </ul>
+        <a href="03-register.html" class="btn btn-secondary btn-block">Empezar gratis</a>
+      </div>
+      <div class="price featured">
+        <h3>Growth</h3>
+        <p class="text-secondary text-sm">Para PyMEs en crecimiento</p>
+        <div class="price-amount">$89 <small>USD / mes</small></div>
+        <ul>
+          <li><span class="check">✓</span> 5 usuarios</li>
+          <li><span class="check">✓</span> Datasets ilimitados</li>
+          <li><span class="check">✓</span> Hasta 1M filas / mes</li>
+          <li><span class="check">✓</span> 5 detectores + NL Edit con IA</li>
+          <li><span class="check">✓</span> Conectores (Google Sheets, Postgres)</li>
+          <li><span class="check">✓</span> Informe ejecutivo PDF</li>
+          <li><span class="check">✓</span> Soporte por chat</li>
+        </ul>
+        <a href="03-register.html" class="btn btn-primary btn-block">Probar Growth 14 días</a>
+      </div>
+      <div class="price">
+        <h3>Scale</h3>
+        <p class="text-secondary text-sm">Para equipos exigentes</p>
+        <div class="price-amount">$249 <small>USD / mes</small></div>
+        <ul>
+          <li><span class="check">✓</span> Usuarios ilimitados</li>
+          <li><span class="check">✓</span> Filas ilimitadas</li>
+          <li><span class="check">✓</span> Detectores custom</li>
+          <li><span class="check">✓</span> SSO (SAML, Google)</li>
+          <li><span class="check">✓</span> API + Webhooks</li>
+          <li><span class="check">✓</span> Auditoría 1 año</li>
+          <li><span class="check">✓</span> SLA 99.9% + soporte prioritario</li>
+        </ul>
+        <a href="#" class="btn btn-secondary btn-block">Hablar con ventas</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CTA ============================ -->
+<section style="padding: 80px 0;">
+  <div class="container">
+    <div style="background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); border-radius: 24px; padding: 64px; color: white; position: relative; overflow: hidden;">
+      <div style="position: absolute; top: -40px; right: -40px; width: 300px; height: 300px; background: rgba(255,255,255,.08); border-radius: 50%;"></div>
+      <div style="position: relative; max-width: 560px;">
+        <h2 style="color: white; font-size: 38px;">Tu próxima hora de Excel puede ser la última.</h2>
+        <p style="color: rgba(255,255,255,0.85); font-size: 18px; margin: 16px 0 28px;">
+          Empieza con 14 días gratis. No pedimos tarjeta. Sube tu primer dataset en menos de 2 minutos.
+        </p>
+        <div style="display:flex; gap:12px;">
+          <a href="03-register.html" class="btn btn-lg" style="background: white; color: var(--brand-primary);">Crear cuenta gratis</a>
+          <a href="02-login.html" class="btn btn-lg" style="background: rgba(255,255,255,.15); color: white; border: 1px solid rgba(255,255,255,.3);">Ya tengo cuenta</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer>
+  <div class="container">
+    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 48px;">
+      <div>
+        <div class="logo logo-inverse" style="margin-bottom: 16px;">
+          <span class="logo-mark"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <span style="color: white;">PymesDataStrategy</span>
+        </div>
+        <p style="color: #94A3B8; font-size: 14px; max-width: 320px;">
+          La plataforma que las PyMEs de LATAM usan para tomar decisiones basadas
+          en datos — sin ingenieros.
+        </p>
+      </div>
+      <div>
+        <h5>Producto</h5>
+        <a href="#producto">Características</a>
+        <a href="#precios">Precios</a>
+        <a href="#">Integraciones</a>
+        <a href="#">Changelog</a>
+      </div>
+      <div>
+        <h5>Recursos</h5>
+        <a href="#">Documentación</a>
+        <a href="#">Blog</a>
+        <a href="#">Comunidad</a>
+        <a href="#">Estado del servicio</a>
+      </div>
+      <div>
+        <h5>Empresa</h5>
+        <a href="#">Sobre nosotros</a>
+        <a href="#">Clientes</a>
+        <a href="#">Contacto</a>
+        <a href="#">Prensa</a>
+      </div>
+      <div>
+        <h5>Legal</h5>
+        <a href="#">Términos</a>
+        <a href="#">Privacidad</a>
+        <a href="#">Seguridad</a>
+        <a href="#">DPA</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 PymesDataStrategy. Hecho con ♥ en Bogotá, Colombia.</div>
+      <div style="display:flex; gap: 20px;">
+        <a href="#">Twitter</a> <a href="#">LinkedIn</a> <a href="#">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

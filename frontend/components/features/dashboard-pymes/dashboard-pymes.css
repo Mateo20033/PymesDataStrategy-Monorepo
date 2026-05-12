@@ -1,0 +1,169 @@
+/* ============================================================
+   Dashboard PYMES-AI — Estilos globales portados
+   ============================================================ */
+
+/* ── Variables de diseño (Scoped to .dashboard-pymes-root) ────────────────── */
+.dashboard-pymes-root {
+  --primary:        #ff6600;
+  --primary-dark:   #cc5200;
+  --primary-light:  #fff0e6;
+  --green:          #059669;
+  --green-light:    #d1fae5;
+  --orange:         #ea580c;
+  --orange-light:   #ffedd5;
+  --red:            #dc2626;
+  --red-light:      #fee2e2;
+
+  --sidebar-bg:     #1a1a1a;
+  --sidebar-text:   #94a3b8;
+  --sidebar-hover:  #2d2d2d;
+  --sidebar-active: #ff6600;
+  --sidebar-w:      240px;
+  --sidebar-w-sm:   64px;
+
+  --bg:             #f7f5f2;
+  --card-bg:        #ffffff;
+  --border:         #e2e8f0;
+
+  --text:           #1e293b;
+  --text-muted:     #64748b;
+
+  --radius:         10px;
+  --shadow:         0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-md:      0 4px 6px rgba(0,0,0,.07), 0 10px 30px rgba(0,0,0,.06);
+
+  --font: var(--font-sans), 'Barlow', system-ui, sans-serif;
+}
+
+.dashboard-pymes-root .page {
+  padding: 28px 32px;
+  max-width: 1200px;
+  background: var(--bg);
+  font-family: var(--font);
+  min-height: 100vh;
+}
+
+.dashboard-pymes-root .page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dashboard-pymes-root .page__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.dashboard-pymes-root .page__subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── Métricas ────────────────────────────────────────────────── */
+.dashboard-pymes-root .metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1100px) { .dashboard-pymes-root .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .dashboard-pymes-root .metrics-grid { grid-template-columns: 1fr; } }
+
+.dashboard-pymes-root .metric-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.dashboard-pymes-root .metric-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.dashboard-pymes-root .metric-card__titulo {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 6px;
+}
+
+.dashboard-pymes-root .metric-card__valor {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.dashboard-pymes-root .metric-card__icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.dashboard-pymes-root .metric-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-pymes-root .metric-card__tendencia { font-size: 12px; font-weight: 600; }
+
+.dashboard-pymes-root .metric-card__subtitulo { font-size: 12px; color: var(--text-muted); }
+
+/* ── Gráficas ────────────────────────────────────────────────── */
+.dashboard-pymes-root .charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) { .dashboard-pymes-root .charts-grid { grid-template-columns: 1fr; } }
+
+.dashboard-pymes-root .chart-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+.dashboard-pymes-root .chart-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-pymes-root .chart-card__title { font-size: 15px; font-weight: 600; color: var(--text); }
+
+.dashboard-pymes-root .chart-card__body { position: relative; }
+
+.dashboard-pymes-root .chart-card__body--pie {
+  display: flex;
+  justify-content: center;
+  max-height: 280px;
+}
+
+/* ── Badges ──────────────────────────────────────────────────── */
+.dashboard-pymes-root .badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dashboard-pymes-root .badge--indigo { background: var(--primary-light); color: var(--primary-dark); }
+.dashboard-pymes-root .badge--gray   { background: #f1f5f9; color: var(--text-muted); }
+.dashboard-pymes-root .badge--green  { background: var(--green-light); color: var(--green); }

@@ -1,0 +1,11 @@
+{
+	"nodes":[
+		{"id":"frontend","type":"text","text":"Frontend","x":0,"y":0,"width":200,"height":100},
+		{"id":"backend","type":"text","text":"Backend API","x":300,"y":0,"width":200,"height":100},
+		{"id":"n8n","type":"text","text":"n8n Workflows","x":150,"y":200,"width":200,"height":100}
+	],
+	"edges":[
+		{"id":"edge-1","fromNode":"frontend","fromSide":"right","toNode":"backend","toSide":"left"},
+		{"id":"edge-2","fromNode":"backend","fromSide":"bottom","toNode":"n8n","toSide":"top"}
+	]
+}

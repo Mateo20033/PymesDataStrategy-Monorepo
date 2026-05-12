@@ -1,0 +1,12 @@
+node_modules
+api/node_modules
+.git
+.gitignore
+worker/tests
+worker/.pytest_cache
+worker/__pycache__
+**/__pycache__
+**/*.pyc
+.env
+.env.*
+!.env.example

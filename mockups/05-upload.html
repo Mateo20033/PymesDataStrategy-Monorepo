@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Revisar anomalías — Ventas_Q1_2026 · PymesDataStrategy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design-system.css" />
+<style>
+  body { background: var(--surface-1); }
+  .app { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
+
+  /* Sidebar (shared with dashboard) */
+  aside.sidebar { background: #1A1A1A; color: #94A3B8; display: flex; flex-direction: column; padding: 20px 14px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .sidebar .logo { color: white; padding: 0 8px; margin-bottom: 28px; }
+  .sidebar .workspace { margin: 0 4px 24px; padding: 10px 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .workspace .wsq { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; font-size: 13px; font-weight: 700; display: grid; place-items: center; }
+  .workspace-info { flex: 1; min-width: 0; }
+  .workspace-info .n { color: white; font-size: 13px; font-weight: 600; }
+  .workspace-info .p { color: #64748B; font-size: 11.5px; }
+  .nav-section { margin-bottom: 16px; }
+  .nav-section .title { padding: 0 10px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #475569; font-weight: 600; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; margin-bottom: 2px; border-radius: 8px; font-size: 14px; color: #94A3B8; cursor: pointer; position: relative; }
+  .nav-item:hover { color: white; background: rgba(255,255,255,.04); }
+  .nav-item.active { color: white; background: rgba(79, 70, 229, .2); }
+  .nav-item.active::before { content: ''; position: absolute; left: 0; top: 20%; bottom: 20%; width: 3px; background: var(--brand-primary); border-radius: 0 2px 2px 0; }
+  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .nav-item .count { margin-left: auto; background: rgba(255,255,255,.1); color: #CBD5E1; font-size: 11px; padding: 1px 7px; border-radius: 9999px; }
+  .sidebar-bottom { margin-top: auto; border-top: 1px solid rgba(255,255,255,.08); padding-top: 12px; }
+  .user-pill { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; cursor: pointer; }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24, #f97316); display: grid; place-items: center; font-weight: 700; color: #7c2d12; font-size: 13px; }
+  .user-pill .nm { color: white; font-size: 13px; font-weight: 600; }
+  .user-pill .em { color: #64748B; font-size: 11.5px; }
+
+  /* Topbar */
+  main.content { min-width: 0; display: flex; flex-direction: column; }
+  .topbar {
+    display: flex; align-items: center;
+    padding: 14px 32px;
+    background: rgba(255,255,255,.9);
+    backdrop-filter: saturate(180%) blur(10px);
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 16px;
+    position: sticky; top: 0; z-index: 30;
+  }
+  .topbar .back {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text-secondary); font-weight: 500;
+  }
+  .topbar-actions { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+
+  /* Stepper */
+  .stepper {
+    padding: 24px 32px;
+    background: white;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .stepper-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+  .stepper-top h1 { font-size: 22px; letter-spacing: -0.02em; margin-bottom: 2px; }
+  .stepper-top .meta { font-size: 13px; color: var(--text-tertiary); }
+  .steps-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .sb {
+    position: relative;
+    padding: 12px 0 12px 44px;
+    border-top: 3px solid var(--surface-2);
+  }
+  .sb .num {
+    position: absolute; left: 0; top: 12px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 13px;
+  }
+  .sb.done { border-top-color: #10B981; }
+  .sb.done .num { background: #10B981; color: white; }
+  .sb.active { border-top-color: var(--brand-primary); }
+  .sb.active .num {
+    background: var(--brand-primary);
+    color: white;
+    box-shadow: 0 0 0 6px var(--brand-primary-ring);
+  }
+  .sb .lab { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .sb .des { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+  .sb.done .des { color: #047857; }
+  .sb.active .lab { color: var(--brand-primary); }
+
+  /* Body layout */
+  .work-area {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 20px;
+    padding: 20px 32px 32px;
+  }
+
+  /* Left: data preview */
+  .preview-card {
+    background: white;
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .preview-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .preview-head .filter-row { display: flex; gap: 8px; align-items: center; flex: 1; }
+  .preview-head .right { display: flex; gap: 8px; }
+  .search-mini { position: relative; }
+  .search-mini svg { position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-tertiary); }
+  .search-mini input {
+    padding: 6px 10px 6px 30px;
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 7px;
+    font-size: 13px;
+    width: 200px;
+  }
+  .filter-pill {
+    display: flex; align-items: center; gap: 4px;
+    padding: 5px 10px;
+    background: white; border: 1px solid var(--border-subtle);
+    border-radius: 7px;
+    font-size: 12.5px; color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  /* Data table */
+  .data-table {
+    flex: 1;
+    overflow: auto;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+  }
+  .data-table table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .data-table th {
+    position: sticky; top: 0;
+    padding: 10px 12px;
+    background: var(--surface-1);
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--text-tertiary);
+    border-bottom: 1px solid var(--border-subtle);
+    border-right: 1px solid var(--surface-2);
+  }
+  .data-table th .type {
+    display: inline-block; margin-left: 6px;
+    font-size: 9.5px; padding: 1px 5px; border-radius: 3px;
+    background: var(--surface-2); color: var(--text-secondary);
+    text-transform: lowercase; letter-spacing: 0;
+    font-family: var(--font-mono); font-weight: 500;
+  }
+  .data-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--surface-2);
+    border-right: 1px solid var(--surface-2);
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+  .data-table tr:hover td { background: var(--surface-1); }
+  .row-num { color: var(--text-tertiary); background: var(--surface-1); font-family: var(--font-mono); font-size: 11px; text-align: right; }
+  /* anomaly cell states */
+  .cell-anom {
+    background: #fef2f2 !important;
+    position: relative;
+    color: #991B1B;
+    font-weight: 600;
+  }
+  .cell-anom::after {
+    content: '';
+    position: absolute; bottom: 2px; left: 4px; right: 4px;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, #EF4444 0 3px, transparent 3px 6px);
+  }
+  .cell-anom.selected {
+    background: #fee2e2 !important;
+    box-shadow: inset 0 0 0 2px #EF4444;
+  }
+  .cell-missing {
+    background: #fffbeb !important;
+    color: #B45309;
+    font-style: italic;
+  }
+  .cell-missing::before { content: '⚠'; margin-right: 4px; }
+  .cell-fix-pending {
+    background: #eff6ff !important;
+    color: #1D4ED8;
+  }
+  .cell-duplicate {
+    background: #f5f3ff !important;
+    color: #6D28D9;
+  }
+
+  .cell-indicator-row {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--danger-soft); color: var(--danger);
+    padding: 1px 6px; border-radius: 9999px;
+    font-size: 10px; font-weight: 600;
+    font-family: var(--font-sans);
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+
+  /* Preview footer */
+  .preview-foot {
+    padding: 10px 20px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12.5px; color: var(--text-secondary);
+  }
+  .pager { display: flex; gap: 4px; align-items: center; }
+  .pager button {
+    width: 28px; height: 28px; border-radius: 6px;
+    border: 1px solid var(--border-subtle); background: white;
+    display: grid; place-items: center; cursor: pointer;
+  }
+  .pager button.active { background: var(--brand-primary); color: white; border-color: transparent; }
+
+  /* Right: anomaly detail */
+  .detail {
+    display: flex; flex-direction: column; gap: 16px;
+    max-height: calc(100vh - 200px);
+    position: sticky; top: 20px;
+  }
+  .detail-card {
+    background: white;
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .detail-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .detail-head h3 { font-size: 15px; }
+  .detail-body { padding: 20px; }
+
+  .anomaly-main {
+    padding: 18px;
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: 10px;
+  }
+  .anomaly-type {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px;
+    background: white;
+    color: #B91C1C;
+    font-size: 11.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .04em;
+    border-radius: 9999px;
+    border: 1px solid #FCA5A5;
+    margin-bottom: 12px;
+  }
+  .anomaly-loc { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+  .anomaly-val {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: #991B1B;
+    margin-bottom: 6px;
+  }
+  .anomaly-ctx { font-size: 12.5px; color: #7F1D1D; }
+
+  .ai-suggestion {
+    margin-top: 16px;
+    padding: 16px;
+    background: #EEF2FF;
+    border: 1px solid #C7D2FE;
+    border-radius: 10px;
+  }
+  .ai-head {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600;
+    color: #4338CA; text-transform: uppercase; letter-spacing: .05em;
+    margin-bottom: 10px;
+  }
+  .ai-head .spark {
+    display: inline-grid; place-items: center;
+    width: 18px; height: 18px; border-radius: 5px;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: white;
+  }
+  .ai-action {
+    display: flex; gap: 8px; align-items: center;
+    font-size: 13px; margin-bottom: 8px;
+  }
+  .ai-action .type {
+    background: #4F46E5; color: white;
+    padding: 2px 8px; border-radius: 9999px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .ai-value {
+    font-family: var(--font-mono);
+    font-size: 20px; font-weight: 700;
+    color: #4338CA; margin-bottom: 8px;
+  }
+  .ai-reason { font-size: 13px; color: #3730A3; line-height: 1.5; }
+
+  .decision-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 16px; }
+  .decision {
+    padding: 12px; text-align: center;
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    cursor: pointer;
+    background: white;
+    transition: all .15s;
+  }
+  .decision:hover { border-color: var(--brand-primary); }
+  .decision .ico {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: grid; place-items: center; margin: 0 auto 6px;
+  }
+  .decision.approve .ico { background: var(--success-soft); color: var(--success); }
+  .decision.skip .ico { background: var(--surface-2); color: var(--text-secondary); }
+  .decision.reject .ico { background: var(--danger-soft); color: var(--danger); }
+  .decision .t { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .decision.approve.selected { border-color: var(--success); background: var(--success-soft); }
+
+  /* NL Edit */
+  .nl-edit {
+    border-top: 1px dashed var(--border-subtle);
+    padding-top: 16px;
+  }
+  .nl-edit-head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .nl-edit-head h4 { font-size: 13.5px; }
+  .nl-edit-head .pill {
+    background: var(--brand-accent-soft); color: #9A3412;
+    font-size: 10px; font-weight: 700; letter-spacing: .05em;
+    padding: 1px 6px; border-radius: 4px; text-transform: uppercase;
+  }
+  .nl-edit textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13.5px;
+    line-height: 1.5;
+    resize: vertical;
+  }
+  .nl-edit textarea:focus { outline: none; border-color: var(--brand-primary); box-shadow: 0 0 0 3px var(--brand-primary-ring); }
+  .nl-edit .ex {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 8px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .nl-chip {
+    background: var(--surface-2);
+    padding: 3px 8px; border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .nl-chip:hover { background: var(--brand-primary-soft); color: #4338CA; }
+
+  /* Detector status */
+  .det-card { padding: 16px 20px; }
+  .det-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--surface-2);
+  }
+  .det-item:last-child { border: none; }
+  .det-item .st {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--success);
+  }
+  .det-item .st.running {
+    background: var(--warning);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .det-item .name { flex: 1; color: var(--text-primary); }
+  .det-item .ct { font-variant-numeric: tabular-nums; color: var(--text-secondary); font-size: 12.5px; }
+
+  /* Footer actions bar */
+  .action-bar {
+    position: sticky; bottom: 0;
+    background: white;
+    border-top: 1px solid var(--border-subtle);
+    padding: 14px 32px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR (same as dashboard) -->
+  <aside class="sidebar">
+    <a href="01-landing.html" class="logo logo-inverse">
+      <span class="logo-mark"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+      <span style="font-size: 15px;">PyMEs Data</span>
+    </a>
+    <div class="workspace">
+      <div class="wsq">SR</div>
+      <div class="workspace-info"><div class="n">San Rafael Co.</div><div class="p">Plan Growth</div></div>
+    </div>
+    <nav class="nav-section">
+      <div class="title">General</div>
+      <a class="nav-item" href="04-dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/><path d="M3 7l9-4 9 4"/><path d="M12 22V10"/></svg>
+        Datasets
+        <span class="count">12</span>
+      </a>
+      <a class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        Anomalías
+        <span class="count" style="background: rgba(239, 68, 68, .2); color: #FCA5A5;">47</span>
+      </a>
+      <a class="nav-item" href="06-reports.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+        Reportes
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-pill">
+        <div class="user-avatar">MR</div>
+        <div style="flex:1;"><div class="nm">María Rodríguez</div><div class="em">maria@sanrafael.co</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <a href="04-dashboard.html" class="back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Volver a datasets
+      </a>
+      <div class="topbar-actions">
+        <span class="badge badge-info" style="padding: 5px 10px;">
+          <span class="dot" style="background: #06B6D4; animation: pulse 1.4s infinite;"></span>
+          Autoguardado · hace 3s
+        </span>
+        <button class="icon-btn" title="Compartir">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <button class="btn btn-secondary btn-sm">Guardar borrador</button>
+      </div>
+    </div>
+
+    <!-- Stepper -->
+    <div class="stepper">
+      <div class="stepper-top">
+        <div>
+          <h1>Ventas_Q1_2026.xlsx</h1>
+          <div class="meta">14,827 filas · 23 columnas · 2.4 MB · Subido hace 14 min</div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <span class="badge badge-warning" style="padding: 5px 10px;">
+            <span class="dot" style="background: #F59E0B;"></span>
+            En revisión · 47 / 112
+          </span>
+        </div>
+      </div>
+      <div class="steps-bar">
+        <div class="sb done">
+          <div class="num">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="lab">1 · Carga</div>
+          <div class="des">Archivo subido</div>
+        </div>
+        <div class="sb done">
+          <div class="num">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="lab">2 · Mapeo</div>
+          <div class="des">Tipos inferidos automáticamente</div>
+        </div>
+        <div class="sb active">
+          <div class="num">3</div>
+          <div class="lab">3 · Revisión de anomalías</div>
+          <div class="des">47 / 112 revisadas · IA con sugerencias</div>
+        </div>
+        <div class="sb">
+          <div class="num">4</div>
+          <div class="lab">4 · Exportar</div>
+          <div class="des text-tertiary">Aplicar correcciones y descargar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Work area -->
+    <div class="work-area">
+      <!-- LEFT: preview -->
+      <div class="preview-card">
+        <div class="preview-head">
+          <div class="filter-row">
+            <div class="search-mini">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input placeholder="Buscar en el dataset..." />
+            </div>
+            <div class="chip active">Con anomalías (65)</div>
+            <div class="chip">Aprobadas (47)</div>
+            <div class="chip">Todas (14.8K)</div>
+          </div>
+          <div class="right">
+            <button class="filter-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              Filtros (2)
+            </button>
+            <button class="filter-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+              Columnas
+            </button>
+          </div>
+        </div>
+
+        <div class="data-table">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 44px; text-align: right;">#</th>
+                <th>id_orden<span class="type">int</span></th>
+                <th>fecha<span class="type">date</span></th>
+                <th>cliente<span class="type">str</span></th>
+                <th>ciudad<span class="type">str</span></th>
+                <th>producto<span class="type">str</span></th>
+                <th>cantidad<span class="type">int</span></th>
+                <th>precio<span class="type">float</span></th>
+                <th>email<span class="type">str</span></th>
+                <th style="width: 140px;">Estado fila</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="row-num">1,204</td>
+                <td>40128</td>
+                <td>2026-03-14</td>
+                <td>Consuelo Ramírez</td>
+                <td>Bogotá</td>
+                <td>Café premium 500g</td>
+                <td>12</td>
+                <td class="cell-anom selected">312.50</td>
+                <td>c.ramirez@gmail.com</td>
+                <td><span class="cell-indicator-row"><svg width="8" height="8" viewBox="0 0 24 24" fill="#EF4444"><circle cx="12" cy="12" r="12"/></svg>OUTLIER</span></td>
+              </tr>
+              <tr>
+                <td class="row-num">1,205</td>
+                <td>40129</td>
+                <td>2026-03-14</td>
+                <td>Martín Delgado</td>
+                <td class="cell-missing">(vacío)</td>
+                <td>Café origen 250g</td>
+                <td>4</td>
+                <td>48.00</td>
+                <td>martin.d@hotmail.com</td>
+                <td><span class="cell-indicator-row" style="background: var(--warning-soft); color: #B45309;">FALTANTE</span></td>
+              </tr>
+              <tr>
+                <td class="row-num">1,206</td>
+                <td>40130</td>
+                <td>2026-03-14</td>
+                <td>Juanita Pardo</td>
+                <td>Medellín</td>
+                <td>Café premium 500g</td>
+                <td>2</td>
+                <td>46.20</td>
+                <td class="cell-anom">juanita.pardo</td>
+                <td><span class="cell-indicator-row">FORMATO</span></td>
+              </tr>
+              <tr>
+                <td class="row-num">1,207</td>
+                <td>40131</td>
+                <td>2026-03-15</td>
+                <td>Carlos Mejía</td>
+                <td>Cali</td>
+                <td>Café origen 250g</td>
+                <td>6</td>
+                <td>44.90</td>
+                <td>carlos@empresa.co</td>
+                <td><span class="badge badge-success" style="padding: 2px 8px; font-size: 10px;">✓ OK</span></td>
+              </tr>
+              <tr>
+                <td class="row-num">1,208</td>
+                <td class="cell-duplicate">40131</td>
+                <td>2026-03-15</td>
+                <td>Carlos Mejía</td>
+                <td>Cali</td>
+                <td>Café origen 250g</td>
+                <td>6</td>
+                <td>44.90</td>
+                <td>carlos@empresa.co</td>
+                <td><span class="cell-indicator-row" style="background: #f5f3ff; color: #6D28D9;">DUPLICADO</span></td>
+              </tr>
+              <tr>
+                <td class="row-num">1,209</td>
+                <td>40132</td>
+                <td>2026-03-15</td>
+                <td>Sofía Linares</td>
+                <td>Cartagena</td>
+                <td>Café premium 500g</td>
+                <td>24</td>
+                <td class="cell-fix-pending">45.00 →</td>
+                <td>sofia.l@gmail.com</td>
+                <td><span class="badge badge-info" style="padding: 2px 8px; font-size: 10px;">Aplicado IA</span></td>
+              </tr>
+              <tr>
+                <td class="row-num">1,210</td>
+                <td>40133</td>
+                <td>2026-03-16</td>
+                <td>Andrés Pulido</td>
+                <td>Bogotá</td>
+                <td>Café origen 250g</td>
+                <td class="cell-anom">-3</td>
+                <td>45.00</td>
+                <td>a.pulido@empresa.co</td>
+                <td><span class="cell-indicator-row" style="background: #fff7ed; color: #9A3412;">INCONSISTENCIA</span></td>
+              </tr>
+              <tr>
+                <td class="row-num">1,211</td>
+                <td>40134</td>
+                <td>2026-03-16</td>
+                <td>Natalia Gómez</td>
+                <td>Medellín</td>
+                <td>Café origen 250g</td>
+                <td>8</td>
+                <td>45.00</td>
+                <td>natalia@gomez.co</td>
+                <td><span class="badge badge-success" style="padding: 2px 8px; font-size: 10px;">✓ OK</span></td>
+              </tr>
+              <tr>
+                <td class="row-num">1,212</td>
+                <td>40135</td>
+                <td class="cell-anom">14/03/2026</td>
+                <td>Ramiro Lozano</td>
+                <td>Barranquilla</td>
+                <td>Café premium 500g</td>
+                <td>10</td>
+                <td>46.20</td>
+                <td>ramiro.l@empresa.co</td>
+                <td><span class="cell-indicator-row">FORMATO</span></td>
+              </tr>
+              <tr>
+                <td class="row-num">1,213</td>
+                <td>40136</td>
+                <td>2026-03-16</td>
+                <td>Patricia Niño</td>
+                <td>Bogotá</td>
+                <td>Café premium 500g</td>
+                <td>3</td>
+                <td class="cell-missing">(vacío)</td>
+                <td>p.nino@empresa.co</td>
+                <td><span class="cell-indicator-row" style="background: var(--warning-soft); color: #B45309;">FALTANTE</span></td>
+              </tr>
+              <tr>
+                <td class="row-num">1,214</td>
+                <td>40137</td>
+                <td>2026-03-17</td>
+                <td>Eduardo Cano</td>
+                <td>Cali</td>
+                <td>Café origen 250g</td>
+                <td>5</td>
+                <td>45.00</td>
+                <td>eduardo.c@empresa.co</td>
+                <td><span class="badge badge-success" style="padding: 2px 8px; font-size: 10px;">✓ OK</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="preview-foot">
+          <div>Fila <strong>1,204</strong> seleccionada · Anomalía <strong>47</strong> de <strong>112</strong></div>
+          <div class="pager">
+            <button>‹</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>…</button>
+            <button>15</button>
+            <button>›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: detail + detectors -->
+      <div class="detail">
+        <!-- Anomaly detail -->
+        <div class="detail-card">
+          <div class="detail-head">
+            <h3>Anomalía #47 de 112</h3>
+            <div style="display: flex; gap: 4px;">
+              <button class="icon-btn" style="width: 28px; height: 28px;" title="Anterior"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <button class="icon-btn" style="width: 28px; height: 28px;" title="Siguiente"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+          </div>
+          <div class="detail-body">
+            <div class="anomaly-main">
+              <span class="anomaly-type">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                OUTLIER · Z-score = 7.2
+              </span>
+              <div class="anomaly-loc">Fila <strong>1,204</strong> · Columna <code>precio</code></div>
+              <div class="anomaly-val">$312.50</div>
+              <div class="anomaly-ctx">
+                Media de la columna: <strong>$45.23</strong> · Percentil 5–95: [$22.00, $67.80].
+                Este valor está <strong>6.9x</strong> por encima del rango esperado.
+              </div>
+            </div>
+
+            <div class="ai-suggestion">
+              <div class="ai-head">
+                <span class="spark">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18 22l-6-4-6 4 1.5-8.5L2 9h7z"/></svg>
+                </span>
+                Sugerencia de Gemini · confianza 91%
+              </div>
+              <div class="ai-action">
+                <span class="type">FILL</span>
+                <span>Rellenar con la mediana de la columna</span>
+              </div>
+              <div class="ai-value">$45.00</div>
+              <div class="ai-reason">
+                Los valores adyacentes del cliente <strong>Consuelo Ramírez</strong> promedian
+                $45.40. La mediana es más robusta que la media para este caso con outliers
+                presentes. Probable error de tipeo (falta punto decimal: 31250 → 312.50 → 31.25 / 45).
+              </div>
+            </div>
+
+            <div class="decision-row">
+              <div class="decision approve selected">
+                <div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="t">Aprobar</div>
+              </div>
+              <div class="decision skip">
+                <div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+                <div class="t">Mantener</div>
+              </div>
+              <div class="decision reject">
+                <div class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+                <div class="t">Eliminar</div>
+              </div>
+            </div>
+
+            <div class="nl-edit">
+              <div class="nl-edit-head">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <h4>Corregir con lenguaje natural</h4>
+                <span class="pill">NL Edit</span>
+              </div>
+              <textarea placeholder="Describe cómo corregir, ej: 'divide por 10 si es mayor a 100 en precio'">Rellena valores faltantes en ciudad con la moda agrupada por región</textarea>
+              <div class="ex">
+                <span class="nl-chip">trunca a 120 caracteres</span>
+                <span class="nl-chip">fecha → ISO-8601</span>
+                <span class="nl-chip">elimina si email vacío</span>
+                <span class="nl-chip">precio &gt; 1000 ÷ 100</span>
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary btn-sm">Vista previa</button>
+                <button class="btn btn-primary btn-sm">Aplicar a 14 filas</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detectors status -->
+        <div class="detail-card det-card">
+          <h4 style="font-size: 13px; text-transform: uppercase; color: var(--text-tertiary); letter-spacing: .05em; margin-bottom: 12px;">Detectores ejecutados</h4>
+          <div class="det-item">
+            <span class="st"></span>
+            <span class="name">Valores faltantes</span>
+            <span class="ct">20</span>
+          </div>
+          <div class="det-item">
+            <span class="st"></span>
+            <span class="name">Outliers (Z-score)</span>
+            <span class="ct">12</span>
+          </div>
+          <div class="det-item">
+            <span class="st"></span>
+            <span class="name">Duplicados</span>
+            <span class="ct">9</span>
+          </div>
+          <div class="det-item">
+            <span class="st"></span>
+            <span class="name">Errores de formato</span>
+            <span class="ct">4</span>
+          </div>
+          <div class="det-item">
+            <span class="st running"></span>
+            <span class="name">Inconsistencias cross-field</span>
+            <span class="ct">Analizando · 2</span>
+          </div>
+          <div class="det-item" style="padding-top: 12px; border-top: 1px solid var(--border-subtle); border-bottom: none; margin-top: 4px;">
+            <strong style="color: var(--text-primary); flex: 1;">Total</strong>
+            <strong style="color: var(--danger); font-variant-numeric: tabular-nums;">47 pendientes</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action bar -->
+    <div class="action-bar">
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <span class="text-secondary text-sm">Acciones masivas:</span>
+        <button class="btn btn-secondary btn-sm">Aceptar todo lo sugerido por IA</button>
+        <button class="btn btn-ghost btn-sm">Revertir aplicadas</button>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <span class="text-tertiary text-sm">47 de 112 revisadas</span>
+        <button class="btn btn-secondary">Guardar y salir</button>
+        <button class="btn btn-primary" onclick="window.location.href='06-reports.html'">
+          Continuar a informe
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
