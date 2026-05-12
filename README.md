@@ -1,100 +1,157 @@
-# PymesDataStrategy (Integrated Version)
+# 🚀 PymesDataStrategy — Plataforma SaaS Inteligente de Datos
 
-Plataforma SaaS unificada de extremo a extremo para la **limpieza, transformación y análisis inteligente de datos empresariales** dirigida a PYMEs.
+> **Proyecto de Grado GIIS SW-005 — Fundación Universitaria Compensar**
+> Solución Integral: Limpieza ETL con IA (HITL) + Visualización de Negocio + Asistente Gemini.
 
-Esta solución integra dos potentes herramientas:
-1. **Pipeline ETL (PymesDataStrategy):** Limpieza automática de anomalías mediante IA y validación humana (HITL).
-2. **Dashboard Analytics (DashboardPYMES):** Visualización automática, detección de tendencias multi-año y chat interactivo con Gemini AI.
-
----
-
-## 🚀 Flujo de Trabajo
-
-El sistema funciona como un engranaje continuo:
-1. **Carga:** Subes un archivo CSV/Excel "sucio".
-2. **Limpieza:** El **Worker en Python** detecta duplicados, valores nulos, outliers y errores de formato.
-3. **Revisión:** Tú validas las correcciones en la interfaz (Humano en el Bucle).
-4. **Sincronización:** Al marcar el dataset como **READY**, el sistema envía automáticamente los datos limpios al motor de analíticas mediante un puente API interno (S2S).
-5. **Insights:** Obtienes instantáneamente gráficas inteligentes, KPIs y un asistente IA para consultar tus datos.
+![Estado](https://img.shields.io/badge/Versión-INTEGRADA%20V1-orange)
+![API Tests](https://img.shields.io/badge/Backend%20Tests-337%20passed-brightgreen)
+![Worker Tests](https://img.shields.io/badge/Worker%20Tests-308%20passed-brightgreen)
+![Stack](https://img.shields.io/badge/Stack-Next.js%20|%20Node%20|%20Python-blue)
+![IA](https://img.shields.io/badge/IA-Gemini%202.5%20Flash-violet)
+![Licencia](https://img.shields.io/badge/Licencia-MIT-blue)
 
 ---
 
-## 🏗️ Arquitectura de Microservicios
+## 📋 Descripción General
 
-El proyecto está orquestado mediante Docker Compose y se divide en 3 capas principales:
+**PymesDataStrategy** es un ecosistema SaaS de extremo a extremo diseñado para transformar el caos de datos de las pequeñas y medianas empresas en **decisiones estratégicas**. 
 
-### 1. Núcleo PDS (PymesDataStrategy)
-- **Frontend (3001):** Aplicación Next.js 15+ que centraliza toda la experiencia de usuario.
-- **API Gateway (3000):** Backend en Node.js que gestiona la autenticación y orquestación de jobs.
-- **Worker ETL (8000):** Motor de procesamiento en Python y Polars para limpieza masiva de datos.
-
-### 2. Capa de Visualización (DashboardPYMES)
-- **Analytics Backend (3002):** Servicio en Node.js que recibe los datos limpios y genera las métricas.
-- **AI Agent (8001):** Microservicio en FastAPI que maneja los análisis estadísticos avanzados y el chat con Gemini.
-- **Dedicated DB:** Instancia de PostgreSQL aislada para el almacenamiento de datasets listos para visualización.
-
-### 3. Infraestructura de Soporte
-- **PostgreSQL:** Base de datos principal para el flujo de limpieza.
-- **Redis:** Cola de mensajes para la comunicación asíncrona del Worker (BullMQ).
-- **MinIO:** Almacenamiento persistente de archivos S3-compatible.
+La plataforma unifica dos mundos:
+1.  **Limpieza Robusta (ETL):** Un pipeline que detecta anomalías, outliers y errores mediante IA, permitiendo validación humana (**Human-in-the-Loop**).
+2.  **Visualización Inteligente:** Un dashboard automático que genera KPIs y gráficas de negocio al instante, complementado con un **Chatbot IA** que responde preguntas sobre los datos.
 
 ---
 
-## 🔑 Configuración Obligatoria (API Keys)
+## 🏗️ Arquitectura del Sistema (Monorepo)
 
-> **IMPORTANTE:** El proyecto NO funcionará correctamente sin configurar las siguientes claves en el archivo `.env`.
+```mermaid
+graph TD
+    User((Usuario)) -->|Sube CSV/Excel| Frontend[Next.js Frontend :3001]
+    
+    subgraph "Núcleo PDS (Limpieza)"
+        Frontend -->|API REST| APIGateway[API Gateway Node.js :3000]
+        APIGateway -->|Encola Jobs| Redis[(Redis / BullMQ)]
+        Redis -->|Procesa| Worker[Worker ETL Python :8000]
+        Worker -->|Almacena| MinIO[(MinIO Object Storage)]
+        Worker -->|Detecta/Sugiere| Gemini[Google Gemini AI]
+    end
 
-### 1. Google Gemini API Key
-Necesaria tanto para la detección de anomalías como para el asistente de chat del dashboard.
-- Obtenla en: [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
-
-### 2. NextAuth Secret
-Clave para la seguridad de la sesión. Puedes generarla con:
-```bash
-openssl rand -base64 32
+    subgraph "Capa de Analytics (Visualización)"
+        Worker -->|Push S2S JSON| DashBackend[Analytics Backend Node.js :3002]
+        DashBackend -->|Queries| DashDB[(PostgreSQL Analytics)]
+        Frontend -->|Proxy| DashBackend
+        DashBackend -->|Stats/Chat| DashAgent[AI Agent FastAPI :8001]
+        DashAgent -->|Interpretación| Gemini
+    end
 ```
 
 ---
 
-## 🛠️ Guía de Inicio Rápido
+## ✅ Funcionalidades Implementadas
 
-Sigue estos pasos para levantar el ecosistema completo en tu máquina local:
+### 🔄 Módulo ETL & HITL (Limpieza)
+- **Ingesta Flexible:** Soporte para archivos `.csv`, `.xls`, `.xlsx` de hasta **50MB**.
+- **Detección Automática:** Identificación de `MISSING_VALUE`, `OUTLIERS` (Z-score > 3), duplicados y errores de formato.
+- **Sugerencias AI:** Gemini genera propuestas de corrección basadas en el contexto real de los datos.
+- **Human-in-the-Loop:** Interfaz interactiva para aprobar, corregir manualmente o eliminar filas con anomalías.
+- **NL Edit:** Permite escribir instrucciones en lenguaje natural (ej: *"reemplaza nulos por la media del sector"*) para aplicar transformaciones.
 
-### 1. Clonar el proyecto
-```bash
-git clone https://github.com/jcgmU/PymesDataStrategy-Root.git
-cd PymesDataStrategy-Root
+### 📊 Módulo Analytics (Dashboard)
+- **Motor Adaptativo:** Detecta automáticamente el tipo de negocio (Ventas, Salud, RRHH, Finanzas, etc.) y genera KPIs específicos.
+- **Gráficas Inteligentes:** 7 tipos de visualizaciones dinámicas (Line, Bar, Pie, Radar, Scatter) generadas con lógica de negocio.
+- **Tendencias Históricas:** Lógica de detección temporal que agrupa datos por mes o **año** automáticamente.
+- **Exportación PDF:** Generación de reportes ejecutivos con capturas reales de las gráficas y conclusiones de IA.
+
+### 🤖 Asistente de IA (Chatbot)
+- **Consultas Naturales:** Pregunta a tus datos: *"¿Cuál fue el mes con mejores ventas?"* o *"¿Hay alguna anomalía en los salarios?"*.
+- **Análisis por Gráfica:** Botón dedicado para que la IA analice y explique el significado de cada gráfico individualmente.
+
+---
+
+## 🛠️ Stack Tecnológico
+
+| Capa | Tecnologías |
+|---|---|
+| **Frontend** | Next.js 15 (App Router), React 19, Tailwind CSS v4, Zustand, React Query, Chart.js. |
+| **API Gateway** | Node.js, Express, TypeScript, Prisma ORM, BullMQ, JWT. |
+| **Worker ETL** | Python 3.12, FastAPI, **Polars** (Procesamiento de alto rendimiento), SQLAlchemy. |
+| **Agente IA** | Python, FastAPI, **scikit-learn** (Regresión, Clustering), Pandas, Google GenAI. |
+| **Infraestructura** | Docker, PostgreSQL (x2), Redis, MinIO (S3-Compatible). |
+
+---
+
+## 🗄️ Estructura de Datos
+
+### 1. Schema de Operación (Prisma)
+- **User:** Gestión de cuentas y roles.
+- **Dataset:** Metadatos de archivos cargados, estado (`PENDING`, `PROCESSING`, `READY`) y keys de MinIO.
+- **Anomaly:** Registro detallado de errores detectados (columna, fila, tipo, valor original).
+- **Decision:** Almacena la acción tomada por el humano (aprobado/corregido) y la representación intermedia (IR).
+- **TransformationJob:** Trazabilidad de los procesos en cola.
+
+### 2. Schema de Analytics (SQL)
+- **Empresas/Users:** Contexto organizacional.
+- **Registros Datos:** Almacenamiento optimizado en **JSONB** con índices GIN para permitir consultas dinámicas sobre cualquier estructura de CSV.
+- **Chatbot Logs:** Historial de interacciones y consumo de tokens.
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+PymesDataStrategy-Monorepo/
+├── frontend/                # Interfaz Next.js 15
+│   ├── app/                 # App Router (Dashboard, Landing, Auth)
+│   ├── components/          # UI Neo-Brutalista y features integradas
+│   └── hooks/api/           # Integración con Backend y Proxy Analytics
+├── backend/                 # Infraestructura de Limpieza
+│   ├── api/                 # API Gateway (TypeScript + Hexagonal)
+│   ├── worker/              # ETL Processor (Python + Polars)
+│   └── prisma/              # Modelado de base de datos HITL
+├── services/
+│   └── dashboard-pymes/     # Capa de Analítica (Deconstruida)
+│       ├── backend/         # Motor de KPIs y Stats (Node.js)
+│       └── agent/           # Cerebro estadístico y Gemini (Python)
+├── docs/                    # Documentación técnica y logs
+├── docker-compose.yml       # Orquestador de 9 servicios
+└── README.md                # Este archivo
 ```
 
-### 2. Configurar variables de entorno
-Crea un archivo `.env` en la carpeta `backend/` basado en `.env.example` y asegúrate de incluir tu `GEMINI_API_KEY`.
+---
 
-### 3. Levantar con Docker
-Desde la carpeta raíz o `backend/`, ejecuta:
+## 🚀 Guía de Instalación (Inicio Rápido)
+
+### 1. Prerrequisitos
+- Docker Desktop instalado.
+- Puertos libres: 3000, 3001, 3002, 5432, 6379, 8000, 8001, 9000, 9001.
+
+### 2. Clonar y Configurar
 ```bash
+git clone https://github.com/jcgmU/PymesDataStrategy-Monorepo.git
+cd PymesDataStrategy-Monorepo
+```
+
+Crea un archivo `.env` en `backend/` (usa `.env.example` como guía).
+**Obligatorio:**
+- `GEMINI_API_KEY`: Consíguela en [Google AI Studio](https://aistudio.google.com/app/apikey).
+- `NEXTAUTH_SECRET`: Generada con `openssl rand -base64 32`.
+
+### 3. Despliegue con Docker
+```bash
+cd backend
 docker compose up --build -d
 ```
-*Nota: La primera construcción puede tardar unos minutos debido a la instalación de dependencias de Python y Node.*
 
-### 4. Acceder al sistema
-- **URL Principal:** [http://localhost:3001](http://localhost:3001)
-
----
-
-## 📁 Estructura del Repositorio
-
-- `/frontend`: Código fuente de la interfaz Next.js.
-- `/backend`: API Gateway, Worker ETL y configuración de Docker.
-- `/services/dashboard-pymes`: Módulos de visualización e IA de la segunda parte.
-- `/docs`: Documentación técnica detallada y logs de desarrollo.
+### 4. Acceso
+- **Plataforma:** [http://localhost:3001](http://localhost:3001)
+- **API Docs:** [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 
 ---
 
-## 👥 Créditos e Integración
+## 📄 Créditos y Licencia
 
-Este proyecto es una integración modular del trabajo original de:
-- **PymesDataStrategy:** Sistema de limpieza HITL.
-- **DashboardPYMES:** Motor de analíticas e IA ([Fork del repo de Mateo20033](https://github.com/jcgmU/DashboardPYMES)).
+Este monorepo integra el trabajo coordinado de:
+- **Limpieza de Datos:** PymesDataStrategy Core.
+- **Motor Analytics:** DashboardPYMES (Integración modular).
 
----
-*Desarrollado como una plataforma SaaS integral para la democratización del análisis de datos en PyMES.*
+Licencia **MIT** — Proyecto Académico Fundación Universitaria Compensar.
