@@ -39,9 +39,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   async headers() {
     return [
       {
@@ -51,13 +48,17 @@ const nextConfig: NextConfig = {
     ]
   },
   async rewrites() {
-    const apiUrl = process.env.INTERNAL_API_URL ?? 'http://localhost:3000'
-    return [
-      {
-        source: '/api/v1/:path*',
-        destination: `${apiUrl}/api/v1/:path*`,
-      },
-    ]
+    const apiUrl = (process.env.INTERNAL_API_URL ?? 'http://localhost:3000').replace(/\/$/, '')
+    return {
+      beforeFiles: [],
+      afterFiles: [
+        {
+          source: '/api/v1/:path*',
+          destination: `${apiUrl}/api/v1/:path*`,
+        },
+      ],
+      fallback: [],
+    }
   },
 }
 
