@@ -47,19 +47,6 @@ const nextConfig: NextConfig = {
       },
     ]
   },
-  async rewrites() {
-    const apiUrl = (process.env.INTERNAL_API_URL ?? 'http://localhost:3000').replace(/\/$/, '')
-    return {
-      beforeFiles: [],
-      afterFiles: [
-        {
-          source: '/api/v1/:path*',
-          destination: `${apiUrl}/api/v1/:path*`,
-        },
-      ],
-      fallback: [],
-    }
-  },
 }
 
 export default nextConfig
