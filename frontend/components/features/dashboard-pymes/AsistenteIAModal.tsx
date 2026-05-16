@@ -23,12 +23,29 @@ function horaActual() {
   return new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
 }
 
-const enviarPregunta = (pregunta: string, datasetId: unknown, empresaId: unknown) =>
-  fetch('/api/dashboard/agent/query', {
+const enviarPregunta = async (pregunta: string, datasetId: unknown, empresaId: unknown) => {
+  const res = await fetch('/api/dashboard/agent/query', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ pregunta, dataset_id: datasetId, empresa_id: empresaId }),
-  }).then(r => r.json());
+  });
+
+  // Parse body safely — may not be JSON on network errors
+  let data: Record<string, unknown> = {};
+  try { data = await res.json(); } catch { /* ignore parse error */ }
+
+  if (!res.ok) {
+    const detail = String(data?.detail ?? '');
+    const isQuota =
+      res.status === 429 ||
+      detail.includes('quota') ||
+      detail.includes('429') ||
+      detail.includes('RESOURCE_EXHAUSTED') ||
+      detail.toLowerCase().includes('exceeded');
+    throw new Error(isQuota ? 'QUOTA_EXCEEDED' : (detail || `Error ${res.status}`));
+  }
+  return data;
+};
 
 export default function AsistenteIAModal({ datasets, defaultDatasetId, onClose }: Props) {
   const [datasetId, setDatasetId] = useState<string | number | null>(
@@ -60,11 +77,11 @@ export default function AsistenteIAModal({ datasets, defaultDatasetId, onClose }
     const pregunta = input.trim();
     if (!pregunta || cargando) return;
     setInput('');
-    setMensajes(prev => [...prev, { rol: 'user', texto: pregunta, hora: horaActual() }]);
+    setMensajes((prev: Mensaje[]) => [...prev, { rol: 'user', texto: pregunta, hora: horaActual() }]);
     setCargando(true);
     try {
       const res = await enviarPregunta(pregunta, datasetId, 1);
-      setMensajes(prev => [
+      setMensajes((prev: Mensaje[]) => [
         ...prev,
         {
           rol: 'ai',
@@ -72,10 +89,14 @@ export default function AsistenteIAModal({ datasets, defaultDatasetId, onClose }
           hora: horaActual(),
         },
       ]);
-    } catch {
-      setMensajes(prev => [
+    } catch (err: unknown) {
+      const isQuota = err instanceof Error && err.message === 'QUOTA_EXCEEDED';
+      const texto = isQuota
+        ? 'La cuota diaria de Gemini está agotada (20 req/día en free tier). El asistente estará disponible mañana o cuando se renueve la cuota.'
+        : 'Hubo un error al consultar el asistente. Intenta de nuevo.';
+      setMensajes((prev: Mensaje[]) => [
         ...prev,
-        { rol: 'ai', texto: 'Hubo un error al consultar el asistente. Intenta de nuevo.', hora: horaActual() },
+        { rol: 'ai', texto, hora: horaActual() },
       ]);
     } finally {
       setCargando(false);

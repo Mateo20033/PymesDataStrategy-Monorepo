@@ -1,4 +1,6 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000'
+// Empty BASE forces all browser calls through Next.js proxy rewrites (/api/v1/* → api:3000)
+// This works from any origin: localhost, Cloudflare tunnel, or any production domain
+const BASE = ''
 
 export const API_ENDPOINTS = {
   auth: {

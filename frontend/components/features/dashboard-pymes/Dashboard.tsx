@@ -486,6 +486,7 @@ export default function Dashboard({ defaultDatasetId }: { defaultDatasetId?: str
   const [exportandoPDF, setExportandoPDF] = useState(false);
   const [showAnalisis, setShowAnalisis]   = useState(false);
   const [showAsistente, setShowAsistente] = useState(false);
+  const [fechaHoy, setFechaHoy]           = useState('');
 
   useEffect(() => {
     getDatasets().then(res => {
@@ -505,6 +506,10 @@ export default function Dashboard({ defaultDatasetId }: { defaultDatasetId?: str
   }, []);
 
   useEffect(() => { cargarStats(selected); }, [selected, cargarStats]);
+
+  useEffect(() => {
+    setFechaHoy(new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+  }, []);
 
   const confirmarEliminar = async () => {
     setAccionando(true);
@@ -694,8 +699,8 @@ export default function Dashboard({ defaultDatasetId }: { defaultDatasetId?: str
               {TIPO_LABELS[tipo] ?? tipo}
             </span>
           )}
-          <span className="badge badge--indigo">
-            {new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          <span className="badge badge--indigo" suppressHydrationWarning>
+            {fechaHoy}
           </span>
           {/* Botón Análisis Avanzado */}
           {!sinDatos && (
