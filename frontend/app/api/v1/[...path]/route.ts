@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
 
 const API_URL = (process.env.INTERNAL_API_URL ?? "http://localhost:3000").replace(/\/$/, "");
 
@@ -12,17 +11,8 @@ async function proxyRequest(req: NextRequest, path: string[]) {
     const contentType = req.headers.get("Content-Type");
     if (contentType) headers.set("Content-Type", contentType);
 
-    // Forward auth token if present
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-    if (token?.accessToken) {
-      headers.set("Authorization", `Bearer ${token.accessToken}`);
-    }
-
-    // Also forward existing Authorization header
-    const authHeader = req.headers.get("Authorization");
-    if (authHeader && !token?.accessToken) {
-      headers.set("Authorization", authHeader);
-    }
+    const auth = req.headers.get("Authorization");
+    if (auth) headers.set("Authorization", auth);
 
     let body: BodyInit | undefined;
     if (req.method !== "GET" && req.method !== "HEAD") {
@@ -52,26 +42,17 @@ async function proxyRequest(req: NextRequest, path: string[]) {
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
-  const { path } = await params;
-  return proxyRequest(req, path);
+  return proxyRequest(req, (await params).path);
 }
-
 export async function POST(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
-  const { path } = await params;
-  return proxyRequest(req, path);
+  return proxyRequest(req, (await params).path);
 }
-
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
-  const { path } = await params;
-  return proxyRequest(req, path);
+  return proxyRequest(req, (await params).path);
 }
-
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
-  const { path } = await params;
-  return proxyRequest(req, path);
+  return proxyRequest(req, (await params).path);
 }
-
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
-  const { path } = await params;
-  return proxyRequest(req, path);
+  return proxyRequest(req, (await params).path);
 }
